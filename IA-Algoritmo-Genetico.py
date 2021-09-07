@@ -112,7 +112,7 @@ def gera_cross(population):
 
 
 #---------------------------------- MUTAÇÃO ----------------------------------
-taxa_mutacao = 0.008
+taxa_mutacao = 0.15 #0.008
 
 def mutation(population):
     nova_populacao = []
@@ -144,18 +144,15 @@ def elitism(parent_population, child_population):
     return child_population
 
 
-#------------------------------ ENCONTRA A SOLUÇÃO ------------------------------
-def encontra_solucao(aptidao): # Retorna a aptitude 1, caso encontrada
-    for apt in aptidao:
-        if(round(apt, 5) == 1): return apt
-    return -1
-
 #---------------------------------- MAIN ----------------------------------
 # Geração da população
 Populacao = gera_populacao()
 
 # Eixo das ordenadas contendo as melhores aptitudes de cada geração
-ordn = []
+melhores_aptidoes = []
+
+# Média das aptidões da geração
+array_media_aptd = []
 
 # Algoritmo Genético em ação
 for i in range(num_ger):
@@ -165,16 +162,23 @@ for i in range(num_ger):
     # Calcula aptidao
     aptidao = calcula_aptidao(Populacao)
 
-    # Print da aptidão máxima e de seu dono
-    print(f"Aptidão max: {round(max(aptidao), 5)}\nGenoma: {aptidao.index(max(aptidao))}")
+    #Melhor aptidao
+    melhor_aptd = max(aptidao)
+
+    # índice do genoma com melhor aptidao
+    indice_melhor_aptd = aptidao.index(melhor_aptd)
+
+    # Média das aptidoes
+    media_aptd = round(sum(aptidao)/pop_size, 5)
+
+    # Print da aptidão máxima, do seu dono, e da média da aptidão da geração
+    print(f"Aptidão max: {round(melhor_aptd, 5)}\nGenoma #{indice_melhor_aptd}: {''.join(str(Gene) for Gene in Populacao[indice_melhor_aptd])}\nMédia aptidão: {media_aptd}")
 
     # Adiciona a aptidão máxima no eixo das ordenadas
-    ordn.append(round(max(aptidao), 5))
+    melhores_aptidoes.append(round(max(aptidao), 5))
 
-    # Printa Genoma que contem solução
-    if encontra_solucao(calcula_aptidao(Populacao)) != -1:
-        print(f"SOLUÇÃO:\nGeração: #{i}\nAptidão: {encontra_solucao(calcula_aptidao(Populacao))}")
-        break
+    # Calcula a média das aptidões e adiciona na lista
+    array_media_aptd.append(media_aptd)
 
     # Aplica seleção pela roleta
     Nova_Populacao = selecao_por_roleta(aptidao)
@@ -192,7 +196,14 @@ for i in range(num_ger):
     Populacao = Nova_Populacao
 
 #---------------------------------- GRÁFICO ----------------------------------
-absc = np.array(range(num_ger)) # Gerações
+lista_geracoes = np.array(range(num_ger)) # Array das gerações
 
-plt.plot(absc, ordn)
-plt.show()
+plt.plot(lista_geracoes, melhores_aptidoes, label='Melhor aptidão')
+plt.plot(lista_geracoes, array_media_aptd, 'r-', label= 'Média das aptidões')
+
+plt.legend()
+plt.ylabel('Aptidão')
+plt.xlabel('Gerações')
+plt.title('Evolução')
+
+plt.show() 
